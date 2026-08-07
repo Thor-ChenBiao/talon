@@ -40,3 +40,5 @@ pub use status::{
 };
 pub use store::{BlockHandle, ObjectStore};
 pub use trace::{init_tracing, RequestId};
+
+// fork-validation: cache smoke test commit — never merged upstream.
