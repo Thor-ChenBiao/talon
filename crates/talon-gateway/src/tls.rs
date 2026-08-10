@@ -525,7 +525,14 @@ fn load_server_config(config: &GatewayTlsConfig) -> Result<LoadedServerConfig, G
     let mut server = builder
         .with_single_cert(certificates, key)
         .map_err(|_| GatewayTlsError::IncompatibleKey)?;
-    server.alpn_protocols = vec![b"h2".to_vec(), b"http/1.1".to_vec()];
+    // HTTP/1.1 only. `axum::serve` builds on hyper-util's auto connection
+    // builder, whose h2 side is behind axum's non-default `http2` feature, so
+    // this server cannot actually speak h2. Advertising it anyway made every
+    // ALPN-capable client negotiate h2 and then have its connection reset —
+    // including Kubernetes' HTTPS probes, which attempt h2 by default and so
+    // could never mark a TLS gateway ready. Re-add `b"h2"` here only together
+    // with `axum = { features = ["http2"] }`.
+    server.alpn_protocols = vec![b"http/1.1".to_vec()];
     Ok(LoadedServerConfig {
         server,
         client_auth: config.client_auth.clone(),
