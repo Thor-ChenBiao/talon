@@ -58,7 +58,8 @@ pub struct GatewayConfig {
     pub max_body_bytes: usize,
     /// Maximum active provider requests. Operational endpoints are exempt.
     pub max_concurrency: usize,
-    /// Deadline for adapter dispatch before response headers exist.
+    /// Total request deadline, covering adapter dispatch and the streamed
+    /// response body.
     pub request_deadline: Duration,
     /// Maximum wait between request or response body frames.
     pub body_idle_timeout: Duration,
